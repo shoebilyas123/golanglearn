@@ -15,7 +15,7 @@ func main(){
 	var ptr2 = &number;
 
 	fmt.Println("This is a poiinter address: ", ptr2);
-	fmt.Println("This is a poiinter address: ", *ptr2);
+	fmt.Println("This is a poiinter value: ", *ptr2);
 
 	*ptr2 = *ptr2 +2;
 	fmt.Println(*ptr2)
