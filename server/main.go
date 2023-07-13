@@ -4,11 +4,13 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"strings"
 )
 
 func main() {
-	PerformPostJsonRequest("http://localhost:8000/post")
+	// PerformPostJsonRequest("http://localhost:8000/post")
+	PerformFormRequest("http://localhost:8000/postform")
 	// fmt.Printf("Request Response : %v\n",rer)
 }
 
@@ -59,4 +61,26 @@ func PerformPostJsonRequest(url string) {
 	byteCount, _ := stringBuilder.Write(databyte)
 	fmt.Println(byteCount)
 	fmt.Println(stringBuilder.String());
+}
+
+func PerformFormRequest(myUrl string){
+	
+	data := url.Values{};
+
+	data.Add("firstname","shoeb")
+	data.Add("lastname","Ilyas")
+	data.Add("email","shoebilyas123@gmail.com")
+
+	response,err := http.PostForm(myUrl, data);
+	defer response.Body.Close();
+
+	handleError(err)
+
+	databyte, _ := ioutil.ReadAll(response.Body)
+	var builder strings.Builder
+	builder.Write(databyte)
+	
+	fmt.Printf("DATABYTE : %v\n",databyte)
+	fmt.Printf("CONTENT : %v\n",builder.String())
+
 }
