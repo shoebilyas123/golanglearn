@@ -37,9 +37,13 @@ func isEmpty(c *Course) bool {
 
 func main(){
 	r := mux.NewRouter();
+
+	// Seeding
+	courses = append(courses, Course{CourseId: "2", CourseName: "ReactJS", Price: 240, Author: &Author{FullName: "MyNane",Website: "lco.dev"}},Course{CourseId: "1232", CourseName: "Golang", Price: 140, Author: &Author{FullName: "Shoeb",Website: "shoebilyas.com"}})
+
 	r.HandleFunc("/", serveHome)
-	r.HandleFunc("/courses/create",createCourse)
-	r.HandleFunc("/courses/get/all",getAllCourses)
+	r.HandleFunc("/courses/create",createCourse).Methods("POST")
+	r.HandleFunc("/courses/get/all",getAllCourses).Methods("GET")
 	r.HandleFunc("/courses/get/{id}",getCourse)
 
 	log.Fatal(http.ListenAndServe(":4000",r))
@@ -110,10 +114,42 @@ func updateCourse(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode("internal server error")
 	}
 
-	for _, course := range courses {
+	for index, course := range courses {
 		if course.CourseId == updatePayload["id"] {
+			courses = append(courses[:index],courses[index+1:]...)
+			var c Course
+
+			json.NewDecoder(r.Body).Decode(&c)
+			c.CourseId = course.CourseId
+			courses = append(courses, c)
+			json.NewEncoder(w).Encode(c)
+			return; 
 		}
 	}
 
 	json.NewEncoder(w).Encode("course with given id not found")
+}
+
+func deleteCourse(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type","application/json")
+
+	params := mux.Vars(r);
+	var foundAndDeleted bool = false;
+
+	for index, course := range courses {
+		if(course.CourseId == params["id"]) {
+			courses = append(courses[:index], courses[index+1:]...)
+			foundAndDeleted = true;
+			break;
+		}
+	}
+
+	if foundAndDeleted {
+		json.NewEncoder(w).Encode("Course updated successfully")
+	} else {
+		
+		json.NewEncoder(w).Encode("Course with the given id not found")
+	}
+
+	
 }
